@@ -1,0 +1,10 @@
+#!/bin/bash
+# 2022-10-22
+
+codename="$(lsb_release -sc)"
+
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/${codename}.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/${codename}.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
+
+sudo apt-get update
+sudo apt-get install -y tailscale

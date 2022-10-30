@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Desc: Automatically upgrade ubuntu from an EOL release
+# Ref: https://help.ubuntu.com/community/EOLUpgrades
+
+to_release="jammy"
+
+# Set sources to "old-release"
+sudo sed -i 's/^deb http:\/\/([^\.]+\.)+ubuntu\.com/deb http://old-releases.ubuntu.com/g' /etc/apt/sources.list
+
+# Download latest upgrader
+mkdir -p "/tmp/${to_release}"
+wget -O "/tmp/${to_release}/${to_release}.tar.gz" "http://archive.ubuntu.com/ubuntu/dists/${to_release}-updates/main/dist-upgrader-all/current/${to_release}.tar.gz"
+
+
+cd "/tmp/${to_release}"
+tar -xvf "${to_release}.tar.gz"
+bash /tmp/${to_release}

@@ -1,18 +1,16 @@
 # install-scripts
+__A bunch of bash scripts to install stuff in Ubuntu.__
 
-__A bunch of bash scripts to install stuff that isn't in the Ubuntu repos yet.__
-  * So I don't have to go to the website and copypaste a "pipe to bash" 
-  * Or clicky clicky to download their `.deb`' file (if they are kind)
-  * Plus work arounds for the problem children who hate `curl` for some reason
+## Scripts
+  * `install-tailscale` - Installs tailscale to apt sources
+  * `install-nvidia-cuda-repo` - Latest packaged versions of CUDA (network repo, update with apt).
+  * `upgrade-old-release` - Makes `do-release-upgrade` work when your release is past EOL.
 
-## Requirements
-  * You need to be able to `sudo` (without password for non-interactive mode)
-  * You at need to have the `lsb_release` command (you already do, I'm sure)
-
+## Assumptions
+  * Scripts run as a user who can `sudo` (without password for non-interactive mode), but not as root.
+  
 ## Notice
   * I try to make these scripts version agnostic but distribution zealotous (#UbuntuGang)
 
 ## Contributing
   * If I screwed something up, please send a PR
-  * Otherwise you should just fork your own repo
-  * But do whatever you want, you're an adult

@@ -1,0 +1,78 @@
+#!/bin/bash
+
+## install-nvidia-cuda-repo
+##
+##   Configures nvidia's remote CUDA repo for installation with apt.
+##   After configuration, all installation is done using the package manager.
+##   Easiest way to keep packages/drivers current AND consistent.
+##
+## Mostly scripted version of instructions found at:
+##   * https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
+
+
+## Distro variables:
+##   * (Not tested on any other distros, but might work.)
+##   * Omit period in release number (because reasons).
+distro='ubuntu'
+release='2204'
+arch='x86_64'
+repo_url="https://developer.download.nvidia.com/compute/cuda/repos/$distro$release/$arch"
+
+## Depends on
+sudo apt-get install -y wget
+
+## Check: GPU is detected
+lspci | grep -i nvidia
+
+
+## Check: GCC Installed
+gcc --version
+
+
+## Install: current kernel-headers
+sudo apt-get install linux-headers-$(uname -r)
+
+## Old nvidia GPG keyring may be present on a fresh install and cause problems.
+##   Multiple methods for removing the old key and adding the new key are included/
+
+## Remove: old key (7fa2af80) 
+sudo apt-key del 7fa2af80
+
+## If that fails
+if [[ $? -ne 0 ]]; then
+sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
+sudo apt-key del 7fa2af80
+fi
+
+## Install: cuda-keyring package
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
+sudo dpkg -i cuda-keyring_1.0-1_all.deb
+
+## If cuda-keyring install fails:
+if [[ $? -eq 0 ]]; then echo "cuda key installed!"; else
+
+## Download and enroll gpg key
+wget "$repo_url/cuda-${distro}${release}-keyring.gpg"
+sudo mv "cuda-${distro}${release}-keyring.gpg" /usr/share/keyrings/cuda-archive-keyring.gpg
+
+## Create signed repo list
+echo "deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] ${repo_url}/ /" | sudo tee "/etc/apt/sources.list.d/cuda-${distro}${release}-${arch}.list"
+
+## Pin priority
+wget "$repo_url/cuda-${distro}${release}.pin"
+sudo mv "cuda-${distro}${release}.pin" /etc/apt/preferences.d/cuda-repository-pin-600
+fi
+
+## Install cuda metapackage (hopefully)
+sudo apt-get update
+sudo apt-get install -y cuda
+sudo apt-get install -y nvidia-gds
+
+echo 'Adding these path exports to your ~/.bashrc file:'
+echo 'export PATH=/usr/local/cuda-12.0/bin${PATH:+:${PATH}}' | tee -a ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda-12.0/lib64\${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}' | tee -a ~/.bashrc
+
+echo -e "\nIf that worked, reboot and optionally install some helpful packages:"
+echo -e "\tsudo apt-get install g++ freeglut3-dev build-essential libx11-dev libxmu-dev libxi-dev libglu1-mesa libglu1-mesa-dev libfreeimage-dev"
+
+

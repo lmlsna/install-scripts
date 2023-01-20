@@ -9,10 +9,8 @@ to_release="jammy"
 sudo sed -i 's/^deb http:\/\/([^\.]+\.)+ubuntu\.com/deb http://old-releases.ubuntu.com/g' /etc/apt/sources.list
 
 # Download latest upgrader
-mkdir -p "/tmp/${to_release}"
-wget -O "/tmp/${to_release}/${to_release}.tar.gz" "http://archive.ubuntu.com/ubuntu/dists/${to_release}-updates/main/dist-upgrader-all/current/${to_release}.tar.gz"
-
-
-cd "/tmp/${to_release}"
-tar -xvf "${to_release}.tar.gz"
-bash /tmp/${to_release}
+tmpd="$(mktemp -d)"
+cd $tmpd
+wget -O "$tmpd/${to_release}.tar.gz" "http://archive.ubuntu.com/ubuntu/dists/${to_release}-updates/main/dist-upgrader-all/current/${to_release}.tar.gz"
+tar -xvf "$tmpd/${to_release}.tar.gz"
+sudo bash "$tmpd/${to_release}"
